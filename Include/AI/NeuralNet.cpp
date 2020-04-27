@@ -7,17 +7,13 @@ double NeuralNet::randomWeight() { return rand() / double(RAND_MAX); }
 
 double NeuralNet::Sigmoid(double x)
 {
-    //return tanh(x);
     return 1 / (1 + exp(-x));
-    //return x;
 }
 
 double NeuralNet::SigmoidDerivate(double x)
 {
-    //return 1.0 - x * x;
     double ex = exp(-x);
     return ex / pow(1 + ex, 2);
-    //return 1;
 }
 
 NeuralNet::NeuralNet(int entryNumber, int hiddenNumber, int outPutNumber, double learningRate, double momentum)
@@ -53,7 +49,7 @@ NeuralNet::NeuralNet(int entryNumber, int hiddenNumber, int outPutNumber, double
 }
 
 //calculates the result classification for an entry {hidden result, output result}
-vector< vector<double> > NeuralNet::ResultClassification(vector<double> entry)
+vector< vector<double> > NeuralNet::ResultClassification(const vector<double>& entry)
 {
     vector<double> hiddenValues(HiddenOutWeights[0].size());
     vector<double> OutPut(HiddenOutWeights.size());
@@ -89,7 +85,7 @@ vector< vector<double> > NeuralNet::ResultClassification(vector<double> entry)
 }
 
 //calculates the result and change neuralNet based on the error
-void NeuralNet::LearnEntry(vector<double> entry, vector<double> expectedResult)
+void NeuralNet::LearnEntry(const vector<double>& entry, const vector<double>& expectedResult)
 {
     vector< vector<double> > netResult = ResultClassification(entry);
     vector<double> Error(netResult[1].size());

@@ -27,10 +27,10 @@ public:
     NeuralNet(int entryNumber, int hiddenNumber, int outPutNumber, double learningRate, double momentum); // Constructor
 
     //calculates the result classification for an entry {hidden result, output result}
-    vector< vector<double> > ResultClassification(vector<double> entry);
+    vector< vector<double> > ResultClassification(const vector<double>& entry);
 
     //calculates the result and change neuralNet based on the error
-    void LearnEntry(vector<double> entry, vector<double> expectedResult);
+    void LearnEntry(const vector<double>& entry, const vector<double>& expectedResult);
 
     //Print on screen the weights values
     void ShowWeights();
