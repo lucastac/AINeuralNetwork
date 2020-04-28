@@ -13,6 +13,8 @@ private:
     vector< vector< double > > EntryHiddenWeights_OldDelta; //old delta weights between Entry and Hidden layer
     vector< vector< double > > HiddenOutWeights_OldDelta;//old delta weights between Hidden and Out layer
 
+    vector<string> Outputs; //all possible outputs
+
     double LearningRate;//Learning rate
     double Momentum;//momentum
 
@@ -23,14 +25,17 @@ private:
 
     double SigmoidDerivate(double x);
 
-public:
-    NeuralNet(int entryNumber, int hiddenNumber, int outPutNumber, double learningRate, double momentum); // Constructor
-
     //calculates the result classification for an entry {hidden result, output result}
-    vector< vector<double> > ResultClassification(const vector<double>& entry);
+    vector< vector<double> > ClassifyForLearn(const vector<double>& entry);
+
+public:
+    NeuralNet(int entryNumber, int hiddenNumber, const vector<string>& possibleOutputs, double learningRate, double momentum); // Constructor
+
+    //calculates the result classification for an entry {string result, double certainty level}
+    pair<string, double> Classify(const vector<double>& entry);
 
     //calculates the result and change neuralNet based on the error
-    void LearnEntry(const vector<double>& entry, const vector<double>& expectedResult);
+    void LearnEntry(const vector<double>& entry, const string& expectedResult);
 
     //Print on screen the weights values
     void ShowWeights();

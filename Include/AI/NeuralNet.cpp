@@ -16,8 +16,9 @@ double NeuralNet::SigmoidDerivate(double x)
     return ex / pow(1 + ex, 2);
 }
 
-NeuralNet::NeuralNet(int entryNumber, int hiddenNumber, int outPutNumber, double learningRate, double momentum)
+NeuralNet::NeuralNet(int entryNumber, int hiddenNumber, const vector<string>& possibleOutputs, double learningRate, double momentum)
 {
+    int outPutNumber = possibleOutputs.size();
     //Initialize the weights between Entry and Hidden layer
     EntryHiddenWeights = vector< vector< double > >(hiddenNumber);
     EntryHiddenWeights_OldDelta = vector< vector< double > >(hiddenNumber);
@@ -44,12 +45,19 @@ NeuralNet::NeuralNet(int entryNumber, int hiddenNumber, int outPutNumber, double
 
     }
 
+    Outputs.resize(outPutNumber);
+
+    for (int i = 0; i < outPutNumber; i++)
+    {
+        Outputs[i] = possibleOutputs[i];
+    }
+
     LearningRate = learningRate;
     Momentum = momentum;
 }
 
 //calculates the result classification for an entry {hidden result, output result}
-vector< vector<double> > NeuralNet::ResultClassification(const vector<double>& entry)
+vector< vector<double> > NeuralNet::ClassifyForLearn(const vector<double>& entry)
 {
     vector<double> hiddenValues(HiddenOutWeights[0].size());
     vector<double> OutPut(HiddenOutWeights.size());
@@ -85,15 +93,15 @@ vector< vector<double> > NeuralNet::ResultClassification(const vector<double>& e
 }
 
 //calculates the result and change neuralNet based on the error
-void NeuralNet::LearnEntry(const vector<double>& entry, const vector<double>& expectedResult)
+void NeuralNet::LearnEntry(const vector<double>& entry, const string& expectedResult)
 {
-    vector< vector<double> > netResult = ResultClassification(entry);
+    vector< vector<double> > netResult = ClassifyForLearn(entry);
     vector<double> Error(netResult[1].size());
 
     //calculates the error
-    for (int i = 0; i < expectedResult.size(); i++)
+    for (int i = 0; i < Outputs.size(); i++)
     {
-        Error[i] = expectedResult[i] - netResult[1][i];
+        Error[i] = (Outputs[i] == expectedResult ? 1 : 0) - netResult[1][i];
         if (abs(Error[i]) <= 0.01)
             Error[i] = 0;
     }
@@ -120,8 +128,6 @@ void NeuralNet::LearnEntry(const vector<double>& entry, const vector<double>& ex
         for (int j = 0; j < HiddenOutWeights[i].size(); j++)
         {
             double hiddenInfo = netResult[0][j];
-            // if(netResult[0][j]>=0.1 || netResult[0][j]<=-0.1)
-              //   hiddenInfo = 1/netResult[0][j];
 
             double newDelta = HiddenOutWeights_OldDelta[i][j] * Momentum + 2 * LearningRate * sigmaOutputs[i] * hiddenInfo;
             HiddenOutWeights_newDelta[i].push_back(newDelta);
@@ -179,6 +185,23 @@ void NeuralNet::LearnEntry(const vector<double>& entry, const vector<double>& ex
         }
     }
 
+}
+
+//calculates the result classification for an entry {string result, double certainty level}
+pair<string, double> NeuralNet::Classify(const vector<double>& entry)
+{
+    vector< vector<double> > netResult = ClassifyForLearn(entry);
+    int maxIndex = 0;
+
+    for (int i = 1; i < netResult[1].size(); i++)
+    {
+        if (netResult[1][i] > netResult[1][maxIndex])
+        {
+            maxIndex = i;
+        }
+    }
+
+    return pair<string, double>({Outputs[maxIndex], netResult[1][maxIndex]});
 }
 
 //Print on screen the weights values

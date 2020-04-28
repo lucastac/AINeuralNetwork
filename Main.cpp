@@ -11,19 +11,29 @@ int main()
     int entryNumber, hiddenNumber, outPutNumber, trainingSize, testSize;
     double learningRate, momentum;
 
+    // read informations of the neural net
     cin >> entryNumber >> hiddenNumber >> outPutNumber >> learningRate >> momentum >> trainingSize >> testSize;
+
+    vector<string> outputs(outPutNumber);
+
+    // read the possible outputs
+    for (int i = 0; i < outPutNumber; i++)
+    {
+        cin >> outputs[i];
+    }
 
     cout << std::fixed << std::setprecision(seenPrecision);
 
-    NeuralNet NT(entryNumber, hiddenNumber, outPutNumber, learningRate, momentum);
+    NeuralNet NT(entryNumber, hiddenNumber, outputs, learningRate, momentum);
 
     vector< vector<double> > EntryToLearn;
-    vector< vector<double> > ResultToLearn;
+    vector< string > ResultToLearn;
 
+    // read the training inputs
     for (int i = 0; i < trainingSize; i++)
     {
         vector<double> entry;
-        vector<double> expectedResult;
+        string expectedResult;
 
         for (int j = 0; j < entryNumber; j++)
         {
@@ -31,16 +41,14 @@ int main()
             cin >> ent;
             entry.push_back(ent);
         }
-        for (int j = 0; j < outPutNumber; j++)
-        {
-            double res;
-            cin >> res;
-            expectedResult.push_back(res);
-        }
+
+        cin >> expectedResult;
+
         EntryToLearn.push_back(entry);
         ResultToLearn.push_back(expectedResult);
     }
 
+    // train the neural network
     for (int i = 0; i < 1000; i++)
     {
         for (int j = 0; j < trainingSize; j++)
@@ -49,13 +57,15 @@ int main()
         }
     }
 
-
+    // print the layers weights after finishing the training;
     NT.ShowWeights();
     cout << endl;
+
+    // read the test inputs
     for (int i = 0; i < testSize; i++)
     {
         vector<double> entry;
-        vector<double> expectedResult;
+        string expectedResult;
 
         for (int j = 0; j < entryNumber; j++)
         {
@@ -63,20 +73,16 @@ int main()
             cin >> ent;
             entry.push_back(ent);
         }
-        for (int j = 0; j < outPutNumber; j++)
-        {
-            double res;
-            cin >> res;
-            expectedResult.push_back(res);
-        }
 
-        vector< vector<double> > res = NT.ResultClassification(entry);
-        cout << "Test " << i + 1 << " :" << endl << endl;
-        for (int j = 0; j < res[1].size(); j++)
-        {
-            cout << j + 1 << " Res : " << res[1][j] << " Exp : " << expectedResult[j] << endl;
-        }
+        cin >> expectedResult;
+
+        pair<string, double> res = NT.Classify(entry);
+
+        // print the test result
+        cout << "Test " << i + 1 << endl;
+        cout << "--Result   : " << res.first << endl; 
+        cout << "--Expected : " << expectedResult << endl;
+        cout << "--Certainty: " << (res.second * 100) << "%" << endl;
         cout << endl;
-
     }
 }
